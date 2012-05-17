@@ -1,6 +1,6 @@
 class EclipseScriptsGrailsPlugin {
     // the plugin version
-    def version = "1.0.5"
+    def version = "1.0.6"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "1.2.0 > *"
     // the other plugins this plugin depends on
@@ -39,4 +39,7 @@ grails help sts-link-sources-and-javadocs
 
     // URL to the plugin's documentation
     def documentation = "http://grails.org/plugin/eclipse-scripts"
+    
+    def license = "APACHE"
+    def scm = [ url: "https://github.com/lhotari/grails-eclipse-scripts" ]
 }

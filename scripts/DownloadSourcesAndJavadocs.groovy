@@ -21,7 +21,7 @@ target(main:"Downloads all sources and javadocs for all dependencies") {
     depends(parseArguments)
     
     boolean grails12version = (grailsSettings.grailsVersion.startsWith('1.2.'))
-    boolean grails14version = (grailsSettings.grailsVersion.startsWith('1.4.'))
+    boolean grails2version = (grailsSettings.grailsVersion.startsWith('2.'))
     
     def dep
     if(argsMap.params) {
@@ -58,7 +58,7 @@ target(main:"Downloads all sources and javadocs for all dependencies") {
     }    
     
     clonedDepManager.parseDependencies {
-		log ivyLogLevel
+        log ivyLogLevel
     	repositories {
 	    	mavenLocal()
 	    	mavenCentral()
@@ -73,6 +73,9 @@ target(main:"Downloads all sources and javadocs for all dependencies") {
 	        if(argsMap.repository) {
 	            mavenRepo argsMap.repository.toString()
 	        }
+	        if(grails2version) {
+	            grailsCentral()
+	        }
 	        grailsPlugins()
 	    	grailsHome()
     	}
@@ -85,7 +88,7 @@ target(main:"Downloads all sources and javadocs for all dependencies") {
 	dd.addDependencyConfiguration('*','sources(*)')
 	dd.addDependencyConfiguration('*','javadoc(*)')
 	clonedDepManager.configureDependencyDescriptor(dd, dd.scope)
-	if(!grails14version) {
+	if(!grails2version) {
 		clonedDepManager.addDependency(dd.dependencyRevisionId)
 	}
     }
@@ -98,7 +101,7 @@ target(main:"Downloads all sources and javadocs for all dependencies") {
     	def dd = new EnhancedDefaultDependencyDescriptor(mrid, false, false, 'runtime')
 	dd.addDependencyConfiguration('*','sources(*)')
 	dd.addDependencyConfiguration('*','javadoc(*)')
-	if(!grails14version) {
+	if(!grails2version) {
 		clonedDepManager.addDependency(mrid)
 	}
 	clonedDepManager.configureDependencyDescriptor(dd, dd.scope)

@@ -13,7 +13,7 @@ includeTargets << grailsScript("_GrailsArgParsing")
 USAGE = """grails sts-link-sources-and-javadocs [--clean]
 	
 	Adds links to downloaded sources and javadocs when STS Grails Dependency Management is active.
-	Modifies the .settings/com.springsource.sts.grails.core.prefs file 
+	Modifies the .settings/org.grails.ide.eclipse.core.prefs file 
 	
 	Usage:
 	grails compile
@@ -23,7 +23,7 @@ USAGE = """grails sts-link-sources-and-javadocs [--clean]
 	
 	Refresh workspace and restart STS to show changes.
 	
-	--clean - remove previous source and javadoc links from com.springsource.sts.grails.core.prefs file
+	--clean - remove previous source and javadoc links from org.grails.ide.eclipse.core.prefs file
 """
 
 def resolveSourceAndJavadoc(File jarfile, File ivyCacheDir) {
@@ -101,7 +101,15 @@ target(stsLinkSourcesAndJavadocs: "Links sources and javadocs downloaded to .ivy
 		addFileClosure(r.file)
 	}
 	
-	File stsGrailsPrefsFile = new File("${basedir}/.settings/com.springsource.sts.grails.core.prefs")
+	File stsGrailsPrefsFile = new File("${basedir}/.settings/org.grails.ide.eclipse.core.prefs")
+	File legacyStsGrailsPrefsFile = new File("${basedir}/.settings/com.springsource.sts.grails.core.prefs")
+	
+	String prefFileLinePrefix = 'org.grails.ide.eclipse.core.'
+	if(legacyStsGrailsPrefsFile.exists()) {
+	    stsGrailsPrefsFile = legacyStsGrailsPrefsFile
+	    prefFileLinePrefix = 'com.springsource.sts.grails.core.'
+	}
+	
 	Properties stsGrailsPrefs=new Properties()
 	if(stsGrailsPrefsFile.exists()) {
 		stsGrailsPrefsFile.withInputStream { input ->
@@ -113,7 +121,7 @@ target(stsLinkSourcesAndJavadocs: "Links sources and javadocs downloaded to .ivy
 	if(argsMap.'clean') {
 		for(def i=stsGrailsPrefs.entrySet().iterator();i.hasNext();) {
 			def e=i.next()
-			if(e.key.startsWith('com.springsource.sts.grails.core.source.attachment-') || e.key.startsWith('com.springsource.sts.grails.core.javadoc.location-')) {
+			if(e.key.startsWith("${prefFileLinePrefix}source.attachment-") || e.key.startsWith("${prefFileLinePrefix}javadoc.location-")) {
 				i.remove()	
 			}
 		}
@@ -125,11 +133,11 @@ target(stsLinkSourcesAndJavadocs: "Links sources and javadocs downloaded to .ivy
 		def (resolvedSource, resolvedJavadoc) = resolveSourceAndJavadoc(f, ivyCacheDir)
 		if(resolvedSource) {
 			sourceCount++
-			stsGrailsPrefs.setProperty("com.springsource.sts.grails.core.source.attachment-${f.name}", resolvedSource.absolutePath)
+			stsGrailsPrefs.setProperty("${prefFileLinePrefix}source.attachment-${f.name}", resolvedSource.absolutePath)
 		}
 		if(resolvedJavadoc) {
 			javadocCount++
-			stsGrailsPrefs.setProperty("com.springsource.sts.grails.core.javadoc.location-${f.name}", resolvedJavadoc)
+			stsGrailsPrefs.setProperty("${prefFileLinePrefix}javadoc.location-${f.name}", resolvedJavadoc)
 		}
 	}
 	

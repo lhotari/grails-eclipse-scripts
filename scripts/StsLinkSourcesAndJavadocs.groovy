@@ -26,19 +26,20 @@ USAGE = """grails sts-link-sources-and-javadocs [--clean]
 	--clean - remove previous source and javadoc links from org.grails.ide.eclipse.core.prefs file
 """
 
-def resolveSourceAndJavadoc(File jarfile, File ivyCacheDir) {
+def resolveSourceAndJavadoc(File jarfile, File repositoryDir, boolean useMaven) {
 	File resolvedSource = null
 	String resolvedJavadoc = null
 	
 	def jarfilebase = jarfile.name.replaceAll(/\.jar$/,'')
-	File sourcejar = new File(new File(jarfile.parentFile.parentFile, 'sources'), "${jarfilebase}-sources.jar")
+    def jarsourcename = "${jarfilebase}-sources.jar".toString()
+	File sourcejar = new File(useMaven ? jarfile.parentFile : new File(jarfile.parentFile.parentFile, 'sources'), jarsourcename)
 	if(sourcejar.exists()) {
 		resolvedSource=sourcejar.absoluteFile
-	} else if(!isChildOfFile(jarfile, ivyCacheDir)) {
-		def parentOrgDir = new File(ivyCacheDir, jarfile.parentFile.parentFile?.parentFile?.name)
+	} else if(!isChildOfFile(jarfile, repositoryDir)) {
+		def parentOrgDir = new File(repositoryDir, jarfile.parentFile.parentFile?.parentFile?.name)
 		def parentDepDir = new File(parentOrgDir, jarfile.parentFile.parentFile?.name)
 		if(parentDepDir.exists()) {
-			sourcejar = new File(new File(parentDepDir,'sources'), "${jarfilebase}-sources.jar")
+            sourcejar = new File(new File(parentDepDir,useMaven ? jarfile.parentFile.name : 'sources'), jarsourcename)
 			if(sourcejar.exists()) {
 				resolvedSource=sourcejar.absoluteFile
 			}
@@ -59,7 +60,7 @@ def resolveSourceAndJavadoc(File jarfile, File ivyCacheDir) {
 		}
 	}
 	
-	File javadocjar = new File(new File(sourcejar?.parentFile.parentFile, 'javadocs'), "${jarfilebase}-javadoc.jar")
+	File javadocjar = new File(useMaven ? jarfile.parentFile : new File(sourcejar?.parentFile.parentFile, 'javadocs'), "${jarfilebase}-javadoc.jar")
 	if(javadocjar.exists()) {
 		resolvedJavadoc = "jar:${javadocjar.toURL()}!/"
 	} else if (jarorganization=='org.grails') {
@@ -87,7 +88,20 @@ target(stsLinkSourcesAndJavadocs: "Links sources and javadocs downloaded to .ivy
 	depends(parseArguments)
 	BuildSettings buildSettings = grailsSettings
 	PluginBuildSettings pluginSettings = GrailsPluginUtils.getPluginBuildSettings()
-	File ivyCacheDir = buildSettings.dependencyManager.ivySettings.defaultCache.absoluteFile
+	File repositoryDir = null
+    boolean useMaven = false
+	if (buildSettings.dependencyManager.getClass().name == 'org.codehaus.groovy.grails.resolve.maven.aether.AetherDependencyManager') {
+        buildSettings.dependencyManager.with {
+            repositoryDir = new File(cacheDir ?: settings.localRepository ?: DEFAULT_CACHE).absoluteFile
+        }
+        useMaven = true
+	} else {
+	    repositoryDir = buildSettings.dependencyManager.ivySettings.defaultCache.absoluteFile
+	}
+	if (!repositoryDir || !repositoryDir.exists()) {
+        System.err.println("Repository directory " + repositoryDir + " doesn't exist.")
+	    System.exit(1)
+	}
 	
 	Set<File> jarFiles = new LinkedHashSet<File>()
 	def addFileClosure = { File f ->
@@ -130,7 +144,7 @@ target(stsLinkSourcesAndJavadocs: "Links sources and javadocs downloaded to .ivy
 	int sourceCount=0
 	int javadocCount=0
 	jarFiles.each { File f -> 
-		def (resolvedSource, resolvedJavadoc) = resolveSourceAndJavadoc(f, ivyCacheDir)
+		def (resolvedSource, resolvedJavadoc) = resolveSourceAndJavadoc(f, repositoryDir, useMaven)
 		if(resolvedSource) {
 			sourceCount++
 			stsGrailsPrefs.setProperty("${prefFileLinePrefix}source.attachment-${f.name}", resolvedSource.absolutePath)

@@ -2,8 +2,6 @@ import java.io.File;
 import grails.util.BuildSettings
 import grails.util.PluginBuildSettings
 
-import java.io.File
-
 import org.codehaus.groovy.grails.plugins.GrailsPluginUtils
 
 includeTargets << grailsScript("_GrailsInit")

@@ -5,7 +5,6 @@ import grails.util.PluginBuildSettings
 import java.io.File
 
 import org.codehaus.groovy.grails.plugins.GrailsPluginUtils
-import org.springframework.core.io.Resource
 
 includeTargets << grailsScript("_GrailsInit")
 includeTargets << grailsScript("_GrailsArgParsing")
@@ -117,7 +116,7 @@ target(stsLinkSourcesAndJavadocs: "Links sources and javadocs downloaded to .ivy
     buildSettings.getTestDependencies().each(addFileClosure)
     buildSettings.getTestDependencies().each(addFileClosure)
     buildSettings.getProvidedDependencies().each(addFileClosure)
-    pluginSettings.getPluginJarFiles().each { Resource r ->
+    pluginSettings.getPluginJarFiles().each { r ->
         addFileClosure(r.file)
     }
 

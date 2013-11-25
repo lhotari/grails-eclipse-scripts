@@ -118,8 +118,12 @@ target(stsLinkSourcesAndJavadocs: "Links sources and javadocs downloaded to .ivy
         addFileClosure(r.file)
     }
 
-    File stsGrailsPrefsFile = new File("${basedir}/.settings/org.grails.ide.eclipse.core.prefs")
-    File legacyStsGrailsPrefsFile = new File("${basedir}/.settings/com.springsource.sts.grails.core.prefs")
+    File eclipseSettingsDir = new File("${basedir}/.settings")
+    if(!eclipseSettingsDir.exists()) {
+        eclipseSettingsDir.mkdir()
+    }
+    File stsGrailsPrefsFile = new File(eclipseSettingsDir, "org.grails.ide.eclipse.core.prefs")
+    File legacyStsGrailsPrefsFile = new File(eclipseSettingsDir, "com.springsource.sts.grails.core.prefs")
 
     String prefFileLinePrefix = 'org.grails.ide.eclipse.core.'
     if(!stsGrailsPrefsFile.exists() && legacyStsGrailsPrefsFile.exists()) {

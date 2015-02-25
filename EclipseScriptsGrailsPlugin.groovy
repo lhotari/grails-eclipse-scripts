@@ -1,6 +1,6 @@
 class EclipseScriptsGrailsPlugin {
     // the plugin version
-    def version = "1.0.7.2"
+    def version = "1.0.7.3"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "1.2.0 > *"
     // the other plugins this plugin depends on
@@ -16,7 +16,7 @@ Creates .classpath and .project files for Eclipse/STS integration.
 Downloads the sources and javadocs for dependencies from public repositories.
 Links the sources and javadocs to the dependent libraries.
 
-example use (Eclipse / Groovy-Eclipse plugin, no STS): 
+example use (Eclipse / Groovy-Eclipse plugin, no STS):
 grails compile
 grails download-sources-and-javadocs (run twice in a row)
 grails download-sources-and-javadocs
@@ -29,8 +29,8 @@ grails integrate-with --eclipse
 grails compile
 grails download-sources-and-javadocs (run twice in a row)
 grails download-sources-and-javadocs
-grails sts-link-sources-and-javadocs   	
-    	
+grails sts-link-sources-and-javadocs
+
 For more information:
 grails help download-sources-and-javadocs
 grails help create-eclipse-files
@@ -39,7 +39,7 @@ grails help sts-link-sources-and-javadocs
 
     // URL to the plugin's documentation
     def documentation = "http://grails.org/plugin/eclipse-scripts"
-    
+
     def license = "APACHE"
     def scm = [ url: "https://github.com/lhotari/grails-eclipse-scripts" ]
 }
